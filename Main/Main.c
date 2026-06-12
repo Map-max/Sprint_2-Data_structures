@@ -44,7 +44,14 @@ void tarifacao_dinamica() {
     int hora;
     int bandeira = 0;
 
+    printf("Insira o horário atual:");
+    scanf("%d", &hora);
+
+    if (hora >= 18 && hora =< 21) {
+
+
     }
+}
 
 int main() {
 
