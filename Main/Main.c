@@ -13,11 +13,13 @@ struct Sessao {
 struct Sessao sessoes[3]; 
 
 void menu() {
-    printf("Menu de Opções:\n");
-    printf("1. Iniciar Sessão\n");
-    printf("2. Encerrar Sessão\n");
+    printf("Menu de Opcoes:\n");
+    printf("1. Iniciar Sessao\n");
+    printf("2. Encerrar Sessao\n");
     printf("3. Verificar Status\n");
-    printf("4. Sair\n");
+    printf("4. Tarifacao Dinamica\n");
+    printf("5. Simular Comunicacao OCPP\n");
+    printf("6. Sair\n");
 }
 
 void controle_de_energia() {
@@ -28,30 +30,77 @@ void controle_de_energia() {
         }
     }
     if (potencia_total > 50.0) {
-        printf("A potência total excede a capacidade máxima. Reduzindo potência...\n");
+        printf("A potencia total excede a capacidade maxima. Reduzindo potencia...\n");
         for (int i = 0; i < 3; i++) {
             if (sessoes[i].status == 1) {
-                sessoes[i].potencia *= 0.8; // Reduz a potência em 20%
-                printf("Sessão %d - Nova Potência: %.1f kW\n", sessoes[i].id, sessoes[i].potencia);
+                sessoes[i].potencia *= 0.8; // Reduz a potencia em 20%
+                printf("Sessao %d - Nova Potencia: %.1f kW\n", sessoes[i].id, sessoes[i].potencia);
             }
         }
     } else {
-        printf("A potência total está dentro da capacidade máxima.\n");
+        printf("A potencia total esta dentro da capacidade maxima.\n");
     }
 }
 
 void tarifacao_dinamica() {
     int hora;
     int bandeira = 0;
+    float tarifa_pico = 0;
+    float tarifa_bandeira = 0;
 
-    printf("Insira o horário atual:");
+    printf("\nInsira o horario atual:");
     scanf("%d", &hora);
+    printf("Qual bandeira o usuario se encontra(1 para verde, 2 para amarela e 3 para vermelha):");
+    scanf("%d", &bandeira);
 
-    if (hora >= 18 && hora =< 21) {
+    for (int i = 0; i < 3; i++) {
 
-
+        if (hora >= 18 && hora <= 21) {
+            printf("\nDevido ao horario de pico sera adicionado uma taxa de 20%% ");
+            tarifa_pico = sessoes[i].preco_total * 0.20;
+            sessoes[i].preco_total += tarifa_pico;
+        }else{
+            printf("Horario de funcionamento normal, taxas adicionais nao serao aplicadas");
+        }
+// Bandeira verde - tarifa normal (ex: R$ 0.50/kWh)
+// Bandeira amarela - tarifa moderada (ex: R$ 0.65/kWh)
+// Bandeira vermelha - tarifa alta (ex: R$ 0.80/kWh)
+    switch (bandeira)
+    {
+    case 1:
+        printf("Bandeira Verde - tarifa R$ 0.50/kWh");
+        tarifa_bandeira = sessoes[i].preco_total * 0.50;
+        sessoes[i].preco_total += tarifa_bandeira;
+        break;
+    case 2:
+        printf("Bandeira Amarela - tarifa R$ 0.65/kWh");
+        tarifa_bandeira = sessoes[i].preco_total * 0.65;
+        sessoes[i].preco_total += tarifa_bandeira;
+        break;
+    case 3:
+        printf("Bandeira Vermelha - tarifa R$ 0.80/kWh");
+        tarifa_bandeira = sessoes[i].preco_total * 0.80;
+        sessoes[i].preco_total += tarifa_bandeira;
+        break;
+    default:
+        printf("Coloque um valor de acordo com o que foi dito!");
+        break;
+    }
+    printf("\nSessao %d - Preco final: R$%.2f\n", sessoes[i].id, sessoes[i].preco_total);
     }
 }
+
+void simulacao_ocpp() {
+    printf("Simulando comunicacao OCPP...\n");
+    // Simulacao de envio de dados para a nuvem
+    for (int i = 0; i < 3; i++) {
+        printf("Enviando dados da Sessao %d para a nuvem...\n", sessoes[i].id);
+        printf("Bateria: %d%%, Tempo de Recarga: %d min, Preco Total: R$%.2f, Potencia: %.1f kW\n", sessoes[i].bateria_atual, sessoes[i].tempo_recarga, sessoes[i].preco_total, sessoes[i].potencia);
+        printf("Resposta recebida: Sessao %d confirmada!\n", sessoes[i].id);
+    }
+    printf("Dados enviados com sucesso!\n");
+}
+
 
 int main() {
 
@@ -87,35 +136,35 @@ int main() {
         switch (opcao)
         {
         case 1:
-            printf("Iniciando sessão...\n");
+            printf("Iniciando sessao...\n");
             printf("Por favor, conecte o cabo para iniciar a recarga.\n");
             for (int i = 0; i < 3; i++) {
                 if (sessoes[i].cabo_conectado == 1) {
                     printf("Cabo conectado. Iniciando recarga...\n");
                     if (sessoes[i].status == 0) {
                         sessoes[i].status = 1;
-                        printf("Sessão %d iniciada com sucesso.\n", sessoes[i].id);
+                        printf("Sessao %d iniciada com sucesso.\n", sessoes[i].id);
                     } else {
-                        printf("Sessão %d já está ativa.\n", sessoes[i].id);
+                        printf("Sessao %d ja esta ativa.\n", sessoes[i].id);
                     }
                 } else {
-                    printf("Cabo não conectado. Não é possível iniciar a recarga.\n");
+                    printf("Cabo nao conectado. Nao e possivel iniciar a recarga.\n");
                 }
 
-                printf("Sessão %d - Bateria: %d%%, Tempo de Recarga: %d min, Preço Total: R$%.2f, Potência: %.1f kW\n", sessoes[i].id, sessoes[i].bateria_atual, sessoes[i].tempo_recarga, sessoes[i].preco_total, sessoes[i].potencia);
+                printf("Sessao %d - Bateria: %d%%, Tempo de Recarga: %d min, Preco Total: R$%.2f, Potencia: %.1f kW\n", sessoes[i].id, sessoes[i].bateria_atual, sessoes[i].tempo_recarga, sessoes[i].preco_total, sessoes[i].potencia);
             }
             break;
         case 2:
-            printf("Encerrando sessão...\n");
-            printf("Por favor, desconecte o cabo para finalizar a sessão.\n");
+            printf("Encerrando sessao...\n");
+            printf("Por favor, desconecte o cabo para finalizar a sessao.\n");
             for (int i = 0; i < 3; i++) {
                 if (sessoes[i].status == 1) {
                     sessoes[i].status = 0;
-                    printf("Sessão %d encerrada com sucesso.\n", sessoes[i].id);
+                    printf("Sessao %d encerrada com sucesso.\n", sessoes[i].id);
                 } else {
-                    printf("Sessão %d não está mais ativa.\n", sessoes[i].id);
+                    printf("Sessao %d nao esta mais ativa.\n", sessoes[i].id);
                 }
-                printf("Sessão %d - Bateria: %d%%, Tempo de Recarga: %d min, Preço Total: R$%.2f, Potência: %.1f kW\n", sessoes[i].id, sessoes[i].bateria_atual, sessoes[i].tempo_recarga, sessoes[i].preco_total, sessoes[i].potencia);
+                printf("Sessao %d - Bateria: %d%%, Tempo de Recarga: %d min, Preco Total: R$%.2f, Potencia: %.1f kW\n", sessoes[i].id, sessoes[i].bateria_atual, sessoes[i].tempo_recarga, sessoes[i].preco_total, sessoes[i].potencia);
             }
             break;
         case 3:
@@ -125,27 +174,30 @@ int main() {
                 if (sessoes[i].cabo_conectado == 1) {
                     printf("Cabo conectado.\n");
                 } else {
-                    printf("Cabo não conectado.\n");
+                    printf("Cabo nao conectado.\n");
                 }if (sessoes[i].status == 1) {
-                    printf("Sessão %d está ativa.\n", sessoes[i].id);
+                    printf("Sessao %d esta ativa.\n", sessoes[i].id);
                 } else {
-                    printf("Sessão %d não está ativa.\n", sessoes[i].id);
+                    printf("Sessao %d nao esta ativa.\n", sessoes[i].id);
                 }
-                printf("Sessão %d - Bateria: %d%%, Tempo de Recarga: %d min, Preço Total: R$%.2f, Potência: %.1f kW\n", sessoes[i].id, sessoes[i].bateria_atual, sessoes[i].tempo_recarga, sessoes[i].preco_total, sessoes[i].potencia);
+                printf("Sessao %d - Bateria: %d%%, Tempo de Recarga: %d min, Preco Total: R$%.2f, Potencia: %.1f kW\n", sessoes[i].id, sessoes[i].bateria_atual, sessoes[i].tempo_recarga, sessoes[i].preco_total, sessoes[i].potencia);
             }
             break;
         case 4:
+            tarifacao_dinamica();
+            break;     
+        case 5:
+            simulacao_ocpp();
+            break;        
+        case 6:
             printf("Saindo...\n");
-            printf("Obrigado por usar o sistema de recarga de veículos elétricos!\n");
+            printf("Obrigado por usar o sistema de recarga de veiculos eletricos!\n");
             break;
         default:
-            printf("Opção inválida. Tente novamente.\n");
+            printf("Opcao invalida. Tente novamente.\n");
             break;
         }
-    } while (opcao != 4);
+    } while (opcao != 6);
 
     return 0;
 }
-
-
-
